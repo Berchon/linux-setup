@@ -43,4 +43,4 @@ Exemplos:
 - Comparação de front/back limitada às dirty regions no diff renderer incremental. (E1/H1.4/T1.4.1) [PR MAIN] [commit f87acdc]
 - Agrupamento de runs contíguos por estilo no diff renderer para reduzir escrita ANSI. (E1/H1.4/T1.4.2) [PR MAIN] [commit e71157d]
 - Emissão ANSI incremental com payload mínimo, seguida de swap de buffers e limpeza de dirty regions. (E1/H1.4/T1.4.3) [PR MAIN] [commit 080183a]
-- Testes de integração/perf para validar render incremental sem redraw full indevido. (E1/H1.4/T1.4.4) [PR MAIN] [commit this-commit]
+- Testes de integração/perf para validar render incremental sem redraw full indevido. (E1/H1.4/T1.4.4) [PR MAIN] [commit 0550852]
