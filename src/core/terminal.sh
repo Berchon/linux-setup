@@ -6,9 +6,50 @@ TERMINAL_CLEANED=0
 TERMINAL_SETUP_DONE=0
 TERMINAL_STTY_ORIG=""
 TERMINAL_ALTSCREEN_ACTIVE=0
+TERMINAL_CAP_CURSOR_POSITIONING=0
+TERMINAL_CAP_CLEAR_SCREEN=0
+TERMINAL_CAP_CURSOR_VISIBILITY=0
+TERMINAL_SUPPORTS_MINIMUM=0
+
+terminal::has_tput() {
+  command -v tput >/dev/null 2>&1
+}
+
+terminal::tput() {
+  tput "$@"
+}
 
 terminal::has_tty() {
   [ -t 0 ] && [ -t 1 ]
+}
+
+terminal::detect_capabilities() {
+  TERMINAL_CAP_CURSOR_POSITIONING=0
+  TERMINAL_CAP_CLEAR_SCREEN=0
+  TERMINAL_CAP_CURSOR_VISIBILITY=0
+  TERMINAL_SUPPORTS_MINIMUM=0
+
+  if ! terminal::has_tty || ! terminal::has_tput; then
+    return 0
+  fi
+
+  if terminal::tput cup 0 0 >/dev/null 2>&1; then
+    TERMINAL_CAP_CURSOR_POSITIONING=1
+  fi
+
+  if terminal::tput clear >/dev/null 2>&1; then
+    TERMINAL_CAP_CLEAR_SCREEN=1
+  fi
+
+  if terminal::tput civis >/dev/null 2>&1 && terminal::tput cnorm >/dev/null 2>&1; then
+    TERMINAL_CAP_CURSOR_VISIBILITY=1
+  fi
+
+  if [ "$TERMINAL_CAP_CURSOR_POSITIONING" -eq 1 ] \
+    && [ "$TERMINAL_CAP_CLEAR_SCREEN" -eq 1 ] \
+    && [ "$TERMINAL_CAP_CURSOR_VISIBILITY" -eq 1 ]; then
+    TERMINAL_SUPPORTS_MINIMUM=1
+  fi
 }
 
 terminal::enter_alternate_screen() {
@@ -84,6 +125,7 @@ terminal::setup() {
   fi
 
   TERMINAL_SETUP_DONE=1
+  terminal::detect_capabilities
   terminal::install_traps
   terminal::enter_alternate_screen
   terminal::hide_cursor

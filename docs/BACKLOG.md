@@ -37,7 +37,7 @@ Critério de saída do E0:
 Objetivo: consolidar o runtime interativo e iniciar a engine de render incremental.
 
 ### H1.1 Runtime de terminal robusto
-- [ ] T1.1.1 Validar capacidades mínimas de terminal sem depender do nome de `TERM`.
+- [x] T1.1.1 Validar capacidades mínimas de terminal sem depender do nome de `TERM`.
 - [ ] T1.1.2 Adicionar tratamento explícito de `WINCH` (resize) no ciclo de runtime.
 - [ ] T1.1.3 Garantir fallback seguro quando alternate screen não estiver disponível.
 - [ ] T1.1.4 Expandir testes de integração para setup/loop/cleanup em cenários de sinal.
