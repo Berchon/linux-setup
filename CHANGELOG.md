@@ -36,3 +36,4 @@ Exemplos:
 - Inicialização, swap e reset dos buffers de render. (E1/H1.2/T1.2.2) [PR MAIN] [commit a939db5]
 - Operações de escrita com clipping por viewport (`write_cell`, `write_text`, `clear_rect`). (E1/H1.2/T1.2.3) [PR MAIN] [commit 74b5597]
 - Testes unitários de fronteira para API de buffers de render. (E1/H1.2/T1.2.4) [PR MAIN] [commit 54ecbe3]
+- Registro de regiões sujas com clipping ao viewport. (E1/H1.3/T1.3.1) [PR MAIN] [commit ea3d67d]
