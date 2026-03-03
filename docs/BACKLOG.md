@@ -58,7 +58,7 @@ Objetivo: consolidar o runtime interativo e iniciar a engine de render increment
 - [x] T1.4.1 Comparar front/back apenas dentro das dirty regions.
 - [x] T1.4.2 Agrupar runs contíguos por estilo para reduzir escrita ANSI.
 - [x] T1.4.3 Emitir ANSI mínimo e atualizar front buffer após flush.
-- [ ] T1.4.4 Adicionar testes de integração/perf para validar ausência de redraw full indevido.
+- [x] T1.4.4 Adicionar testes de integração/perf para validar ausência de redraw full indevido.
 
 Critério de saída do E1:
 - Runtime de terminal robusto + pipeline inicial de render incremental validado por testes.
