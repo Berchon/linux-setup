@@ -38,4 +38,5 @@ Exemplos:
 - Testes unitários de fronteira para API de buffers de render. (E1/H1.2/T1.2.4) [PR MAIN] [commit 54ecbe3]
 - Registro de regiões sujas com clipping ao viewport. (E1/H1.3/T1.3.1) [PR MAIN] [commit 44b8d2c]
 - Merge de regiões sujas sobrepostas e adjacentes durante o registro incremental. (E1/H1.3/T1.3.2) [PR MAIN] [commit d38755e]
-- Política de invalidação para eventos simples (`menu delta`, `clock`, `modal`, `resize`). (E1/H1.3/T1.3.3) [PR MAIN] [commit PLACEHOLDER_T133]
+- Política de invalidação para eventos simples (`menu delta`, `clock`, `modal`, `resize`). (E1/H1.3/T1.3.3) [PR MAIN] [commit b0ab8d2]
+- Cobertura unitária de fronteiras para dirty regions (clipping extremo, remoção, índices inválidos e casos sem interseção). (E1/H1.3/T1.3.4) [PR MAIN] [commit PLACEHOLDER_T134]
