@@ -242,3 +242,54 @@ dirty_regions_add() {
   dirty_regions_widths[index]="$width"
   dirty_regions_heights[index]="$height"
 }
+
+dirty_regions_invalidate_menu_delta() {
+  local x="$1"
+  local y="$2"
+  local width="$3"
+  local old_row="$4"
+  local new_row="$5"
+
+  if ! dirty_regions_add "$x" "$((y + old_row))" "$width" 1; then
+    return 1
+  fi
+
+  if ((old_row == new_row)); then
+    return 0
+  fi
+
+  dirty_regions_add "$x" "$((y + new_row))" "$width" 1
+}
+
+dirty_regions_invalidate_clock() {
+  local x="$1"
+  local y="$2"
+  local width="$3"
+
+  dirty_regions_add "$x" "$y" "$width" 1
+}
+
+dirty_regions_invalidate_modal() {
+  local x="$1"
+  local y="$2"
+  local width="$3"
+  local height="$4"
+  local previous_x="${5:-0}"
+  local previous_y="${6:-0}"
+  local previous_width="${7:-0}"
+  local previous_height="${8:-0}"
+
+  if ((previous_width > 0 && previous_height > 0)); then
+    dirty_regions_add "$previous_x" "$previous_y" "$previous_width" "$previous_height" || return 1
+  fi
+
+  if ((width > 0 && height > 0)); then
+    dirty_regions_add "$x" "$y" "$width" "$height" || return 1
+  fi
+
+  return 0
+}
+
+dirty_regions_invalidate_resize() {
+  dirty_regions_add 0 0 "$dirty_regions_screen_width" "$dirty_regions_screen_height"
+}

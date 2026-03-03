@@ -37,4 +37,5 @@ Exemplos:
 - Operações de escrita com clipping por viewport (`write_cell`, `write_text`, `clear_rect`). (E1/H1.2/T1.2.3) [PR MAIN] [commit 74b5597]
 - Testes unitários de fronteira para API de buffers de render. (E1/H1.2/T1.2.4) [PR MAIN] [commit 54ecbe3]
 - Registro de regiões sujas com clipping ao viewport. (E1/H1.3/T1.3.1) [PR MAIN] [commit 44b8d2c]
-- Merge de regiões sujas sobrepostas e adjacentes durante o registro incremental. (E1/H1.3/T1.3.2) [PR MAIN] [commit PLACEHOLDER_T132]
+- Merge de regiões sujas sobrepostas e adjacentes durante o registro incremental. (E1/H1.3/T1.3.2) [PR MAIN] [commit d38755e]
+- Política de invalidação para eventos simples (`menu delta`, `clock`, `modal`, `resize`). (E1/H1.3/T1.3.3) [PR MAIN] [commit PLACEHOLDER_T133]

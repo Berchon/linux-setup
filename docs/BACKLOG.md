@@ -51,7 +51,7 @@ Objetivo: consolidar o runtime interativo e iniciar a engine de render increment
 ### H1.3 Dirty regions
 - [x] T1.3.1 Implementar registro de regiões sujas com clipping.
 - [x] T1.3.2 Implementar merge de regiões sobrepostas/adjacentes.
-- [ ] T1.3.3 Implementar política de invalidação para eventos simples (menu delta, relógio, modal, resize).
+- [x] T1.3.3 Implementar política de invalidação para eventos simples (menu delta, relógio, modal, resize).
 - [ ] T1.3.4 Cobrir dirty regions com testes unitários.
 
 ### H1.4 Diff renderer incremental
