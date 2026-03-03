@@ -23,11 +23,31 @@ assert_eq() {
   fi
 }
 
+assert_contains() {
+  local content="$1"
+  local snippet="$2"
+  local label="$3"
+
+  if [[ "$content" == *"$snippet"* ]]; then
+    pass_count=$((pass_count + 1))
+    printf 'PASS: %s\n' "$label"
+  else
+    fail_count=$((fail_count + 1))
+    printf 'FAIL: %s (missing=%s content=%s)\n' "$label" "$snippet" "$content"
+  fi
+}
+
 reset_state() {
+  terminal::has_tty() { [ -t 0 ] && [ -t 1 ]; }
+  terminal::has_tput() { command -v tput >/dev/null 2>&1; }
+  terminal::tput() { tput "$@"; }
+  terminal::emit_ansi() { printf '%b' "$1"; }
+
   TERMINAL_CLEANED=0
   TERMINAL_SETUP_DONE=0
   TERMINAL_STTY_ORIG=""
   TERMINAL_ALTSCREEN_ACTIVE=0
+  TERMINAL_RESIZE_PENDING=0
 }
 
 test_cleanup_idempotent() {
@@ -59,6 +79,9 @@ test_setup_idempotent() {
 test_alt_screen_flag() {
   reset_state
   LINUX_SETUP_TERMINAL_DISABLE_ALTSCREEN=0
+  terminal::has_tty() { return 0; }
+  terminal::has_tput() { return 1; }
+  terminal::tput() { return 1; }
 
   terminal::enter_alternate_screen >/dev/null
   assert_eq "1" "$TERMINAL_ALTSCREEN_ACTIVE" "alternate screen flag enabled"
@@ -67,10 +90,59 @@ test_alt_screen_flag() {
   assert_eq "0" "$TERMINAL_ALTSCREEN_ACTIVE" "alternate screen flag disabled"
 }
 
+test_alt_screen_safe_fallback_without_tty() {
+  reset_state
+  LINUX_SETUP_TERMINAL_DISABLE_ALTSCREEN=0
+  terminal::has_tty() { return 1; }
+  terminal::has_tput() { return 0; }
+
+  terminal::enter_alternate_screen >/dev/null
+  assert_eq "0" "$TERMINAL_ALTSCREEN_ACTIVE" "alternate screen keeps safe fallback when tty is unavailable"
+}
+
+test_winch_runtime_flag_and_trap() {
+  reset_state
+  terminal::handle_winch
+  assert_eq "1" "$TERMINAL_RESIZE_PENDING" "WINCH handler marks resize as pending"
+
+  terminal::consume_resize_event
+  assert_eq "0" "$TERMINAL_RESIZE_PENDING" "resize pending flag is cleared after consume"
+
+  terminal::install_traps
+  assert_contains "$(trap -p WINCH)" "terminal::handle_winch" "WINCH trap is installed"
+}
+
+test_signal_handlers_exit_codes() {
+  local interrupt_rc=0
+  local terminate_rc=0
+
+  if (TERMINAL_CLEANED=0; terminal::handle_interrupt) >/dev/null 2>&1; then
+    interrupt_rc=0
+  else
+    interrupt_rc=$?
+  fi
+  assert_eq "130" "$interrupt_rc" "INT handler exits with code 130"
+
+  if (TERMINAL_CLEANED=0; terminal::handle_terminate) >/dev/null 2>&1; then
+    terminate_rc=0
+  else
+    terminate_rc=$?
+  fi
+  assert_eq "143" "$terminate_rc" "TERM handler exits with code 143"
+
+  terminal::install_traps
+  assert_contains "$(trap -p EXIT)" "terminal::handle_exit" "EXIT trap is installed"
+  assert_contains "$(trap -p INT)" "terminal::handle_interrupt" "INT trap is installed"
+  assert_contains "$(trap -p TERM)" "terminal::handle_terminate" "TERM trap is installed"
+}
+
 main() {
   test_cleanup_idempotent
   test_setup_idempotent
   test_alt_screen_flag
+  test_alt_screen_safe_fallback_without_tty
+  test_winch_runtime_flag_and_trap
+  test_signal_handlers_exit_codes
 
   printf '\nTotal: %s pass, %s fail\n' "$pass_count" "$fail_count"
   [ "$fail_count" -eq 0 ]

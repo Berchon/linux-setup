@@ -5,25 +5,11 @@ set -u
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=../core/terminal.sh
 source "$SCRIPT_DIR/../core/terminal.sh"
-
-app::loop() {
-  local key=""
-
-  while true; do
-    if read -r -s -n 1 -t 0.1 key; then
-      case "$key" in
-        q|Q)
-          break
-          ;;
-      esac
-    fi
-  done
-}
+# shellcheck source=app_shell.sh
+source "$SCRIPT_DIR/app_shell.sh"
 
 app::main() {
-  terminal::setup
-  app::loop
-  terminal::cleanup
+  app_shell::main
 }
 
 app::main "$@"

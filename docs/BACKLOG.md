@@ -37,32 +37,58 @@ Critério de saída do E0:
 Objetivo: consolidar o runtime interativo e iniciar a engine de render incremental.
 
 ### H1.1 Runtime de terminal robusto
-- [ ] T1.1.1 Validar capacidades mínimas de terminal sem depender do nome de `TERM`.
-- [ ] T1.1.2 Adicionar tratamento explícito de `WINCH` (resize) no ciclo de runtime.
-- [ ] T1.1.3 Garantir fallback seguro quando alternate screen não estiver disponível.
-- [ ] T1.1.4 Expandir testes de integração para setup/loop/cleanup em cenários de sinal.
+- [x] T1.1.1 Validar capacidades mínimas de terminal sem depender do nome de `TERM`.
+- [x] T1.1.2 Adicionar tratamento explícito de `WINCH` (resize) no ciclo de runtime.
+- [x] T1.1.3 Garantir fallback seguro quando alternate screen não estiver disponível.
+- [x] T1.1.4 Expandir testes de integração para setup/loop/cleanup em cenários de sinal.
 
 ### H1.2 Buffers de render
-- [ ] T1.2.1 Implementar estrutura de célula (`char`, `fg`, `bg`, `attrs`) para front/back buffer.
-- [ ] T1.2.2 Implementar inicialização, swap e reset de buffers.
-- [ ] T1.2.3 Implementar operações de escrita com clipping por viewport.
-- [ ] T1.2.4 Cobrir buffer API com testes unitários de fronteira.
+- [x] T1.2.1 Implementar estrutura de célula (`char`, `fg`, `bg`, `attrs`) para front/back buffer.
+- [x] T1.2.2 Implementar inicialização, swap e reset de buffers.
+- [x] T1.2.3 Implementar operações de escrita com clipping por viewport.
+- [x] T1.2.4 Cobrir buffer API com testes unitários de fronteira.
 
 ### H1.3 Dirty regions
-- [ ] T1.3.1 Implementar registro de regiões sujas com clipping.
-- [ ] T1.3.2 Implementar merge de regiões sobrepostas/adjacentes.
-- [ ] T1.3.3 Implementar política de invalidação para eventos simples (menu delta, relógio, modal, resize).
-- [ ] T1.3.4 Cobrir dirty regions com testes unitários.
+- [x] T1.3.1 Implementar registro de regiões sujas com clipping.
+- [x] T1.3.2 Implementar merge de regiões sobrepostas/adjacentes.
+- [x] T1.3.3 Implementar política de invalidação para eventos simples (menu delta, relógio, modal, resize).
+- [x] T1.3.4 Cobrir dirty regions com testes unitários.
 
 ### H1.4 Diff renderer incremental
-- [ ] T1.4.1 Comparar front/back apenas dentro das dirty regions.
-- [ ] T1.4.2 Agrupar runs contíguos por estilo para reduzir escrita ANSI.
-- [ ] T1.4.3 Emitir ANSI mínimo e atualizar front buffer após flush.
-- [ ] T1.4.4 Adicionar testes de integração/perf para validar ausência de redraw full indevido.
+- [x] T1.4.1 Comparar front/back apenas dentro das dirty regions.
+- [x] T1.4.2 Agrupar runs contíguos por estilo para reduzir escrita ANSI.
+- [x] T1.4.3 Emitir ANSI mínimo e atualizar front buffer após flush.
+- [x] T1.4.4 Adicionar testes de integração/perf para validar ausência de redraw full indevido.
 
 Critério de saída do E1:
 - Runtime de terminal robusto + pipeline inicial de render incremental validado por testes.
+
 3. E2 Componentes base
+
+### E2 - Histórias e tasks
+Objetivo: entregar primitives visuais reutilizáveis e composáveis para os fluxos de UI.
+
+### H2.1 Rectangle
+- [x] T2.1.1 Implementar preenchimento de área retangular em buffer com clipping.
+- [x] T2.1.2 Implementar borda (`none|single|double`) com fallback ASCII.
+- [x] T2.1.3 Implementar render de título opcional com clipping e alinhamento básico.
+- [x] T2.1.4 Cobrir `rectangle` com testes de componente e fronteira.
+
+### H2.2 Shadow
+- [ ] T2.2.1 Implementar sombra com offset configurável (`dx`, `dy`).
+- [ ] T2.2.2 Implementar clipping e regras de sobreposição da sombra.
+- [ ] T2.2.3 Implementar política de habilitar/desabilitar sombra por componente.
+- [ ] T2.2.4 Cobrir `shadow` com testes de componente.
+
+### H2.3 Panel
+- [ ] T2.3.1 Implementar composição `Rectangle + Shadow` em um componente único.
+- [ ] T2.3.2 Implementar padding interno configurável e cálculo da área útil.
+- [ ] T2.3.3 Expor API de conteúdo interno via callback/contrato de render.
+- [ ] T2.3.4 Cobrir `panel` com testes de composição e clipping.
+
+Critério de saída do E2:
+- Componentes base (`rectangle`, `shadow`, `panel`) estáveis e validados por testes.
+
 4. E3 Navegação/menu
 5. E4 Modal e toast
 6. E5 Configuração + i18n
