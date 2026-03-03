@@ -112,12 +112,37 @@ test_winch_runtime_flag_and_trap() {
   assert_contains "$(trap -p WINCH)" "terminal::handle_winch" "WINCH trap is installed"
 }
 
+test_signal_handlers_exit_codes() {
+  local interrupt_rc=0
+  local terminate_rc=0
+
+  if (TERMINAL_CLEANED=0; terminal::handle_interrupt) >/dev/null 2>&1; then
+    interrupt_rc=0
+  else
+    interrupt_rc=$?
+  fi
+  assert_eq "130" "$interrupt_rc" "INT handler exits with code 130"
+
+  if (TERMINAL_CLEANED=0; terminal::handle_terminate) >/dev/null 2>&1; then
+    terminate_rc=0
+  else
+    terminate_rc=$?
+  fi
+  assert_eq "143" "$terminate_rc" "TERM handler exits with code 143"
+
+  terminal::install_traps
+  assert_contains "$(trap -p EXIT)" "terminal::handle_exit" "EXIT trap is installed"
+  assert_contains "$(trap -p INT)" "terminal::handle_interrupt" "INT trap is installed"
+  assert_contains "$(trap -p TERM)" "terminal::handle_terminate" "TERM trap is installed"
+}
+
 main() {
   test_cleanup_idempotent
   test_setup_idempotent
   test_alt_screen_flag
   test_alt_screen_safe_fallback_without_tty
   test_winch_runtime_flag_and_trap
+  test_signal_handlers_exit_codes
 
   printf '\nTotal: %s pass, %s fail\n' "$pass_count" "$fail_count"
   [ "$fail_count" -eq 0 ]

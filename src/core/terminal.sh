@@ -147,8 +147,24 @@ terminal::consume_resize_event() {
   return 0
 }
 
+terminal::handle_exit() {
+  terminal::cleanup
+}
+
+terminal::handle_interrupt() {
+  terminal::cleanup
+  exit 130
+}
+
+terminal::handle_terminate() {
+  terminal::cleanup
+  exit 143
+}
+
 terminal::install_traps() {
-  trap 'terminal::cleanup' EXIT INT TERM
+  trap 'terminal::handle_exit' EXIT
+  trap 'terminal::handle_interrupt' INT
+  trap 'terminal::handle_terminate' TERM
   trap 'terminal::handle_winch' WINCH
 }
 
