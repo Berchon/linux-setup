@@ -26,3 +26,8 @@ Se comportamento ou requisito mudar, atualizar documentação e testes no mesmo 
 ## 5. Padrão de PR
 Toda PR deve seguir o template de:
 `docs/PADRAO_DE_DESCRICAO_DE_PR.md`.
+
+## 6. Disciplina de checklist do backlog
+- Tasks do backlog devem ser mantidas em formato checklist (`[ ]`/`[x]`).
+- Concluiu uma task: marcar `[x]` no `docs/BACKLOG.md` no mesmo PR/commit.
+- Não considerar task finalizada se o checklist não foi atualizado.
