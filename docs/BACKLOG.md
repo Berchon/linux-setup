@@ -56,7 +56,7 @@ Objetivo: consolidar o runtime interativo e iniciar a engine de render increment
 
 ### H1.4 Diff renderer incremental
 - [x] T1.4.1 Comparar front/back apenas dentro das dirty regions.
-- [ ] T1.4.2 Agrupar runs contíguos por estilo para reduzir escrita ANSI.
+- [x] T1.4.2 Agrupar runs contíguos por estilo para reduzir escrita ANSI.
 - [ ] T1.4.3 Emitir ANSI mínimo e atualizar front buffer após flush.
 - [ ] T1.4.4 Adicionar testes de integração/perf para validar ausência de redraw full indevido.
 
