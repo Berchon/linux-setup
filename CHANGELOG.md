@@ -28,3 +28,4 @@ Exemplos:
 - Estrutura documental base do projeto (`PRD`, arquitetura, backlog, plano de testes, padrões de engenharia e padrão de PR). (E0/H0.3) [PR MAIN] [commit 8d66252]
 - Runner sequencial de testes com descoberta automática por grupos e resumo de progresso/pass-fail. (E0/H0.1/T0.1.3) [PR MAIN] [commit 00a3c45]
 - Runtime inicial da aplicação com entrypoint, setup/cleanup de terminal e testes unitários de idempotência/alternate screen. (E0/H0.2/T0.2.1-T0.2.3) [PR MAIN] [commit 3180d7b]
+- Runtime de terminal robusto com validação de capacidades, tratamento explícito de `WINCH`, fallback seguro de alternate screen e cobertura de sinais em testes de integração. (E1/H1.1/T1.1.1-T1.1.4) [PR MAIN] [commit b7586af]
