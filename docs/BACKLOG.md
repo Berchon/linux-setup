@@ -69,7 +69,7 @@ Critério de saída do E1:
 Objetivo: entregar primitives visuais reutilizáveis e composáveis para os fluxos de UI.
 
 ### H2.1 Rectangle
-- [ ] T2.1.1 Implementar preenchimento de área retangular em buffer com clipping.
+- [x] T2.1.1 Implementar preenchimento de área retangular em buffer com clipping.
 - [ ] T2.1.2 Implementar borda (`none|single|double`) com fallback ASCII.
 - [ ] T2.1.3 Implementar render de título opcional com clipping e alinhamento básico.
 - [ ] T2.1.4 Cobrir `rectangle` com testes de componente e fronteira.
