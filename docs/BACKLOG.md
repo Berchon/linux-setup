@@ -39,7 +39,7 @@ Objetivo: consolidar o runtime interativo e iniciar a engine de render increment
 ### H1.1 Runtime de terminal robusto
 - [x] T1.1.1 Validar capacidades mínimas de terminal sem depender do nome de `TERM`.
 - [x] T1.1.2 Adicionar tratamento explícito de `WINCH` (resize) no ciclo de runtime.
-- [ ] T1.1.3 Garantir fallback seguro quando alternate screen não estiver disponível.
+- [x] T1.1.3 Garantir fallback seguro quando alternate screen não estiver disponível.
 - [ ] T1.1.4 Expandir testes de integração para setup/loop/cleanup em cenários de sinal.
 
 ### H1.2 Buffers de render

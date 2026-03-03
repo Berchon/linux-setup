@@ -20,6 +20,10 @@ terminal::tput() {
   tput "$@"
 }
 
+terminal::emit_ansi() {
+  printf '%b' "$1"
+}
+
 terminal::has_tty() {
   [ -t 0 ] && [ -t 1 ]
 }
@@ -54,16 +58,26 @@ terminal::detect_capabilities() {
 }
 
 terminal::enter_alternate_screen() {
+  if [ "$TERMINAL_ALTSCREEN_ACTIVE" -eq 1 ]; then
+    return 0
+  fi
+
   if [ "${LINUX_SETUP_TERMINAL_DISABLE_ALTSCREEN:-0}" = "1" ]; then
     return 0
   fi
 
-  if command -v tput >/dev/null 2>&1 && terminal::has_tty; then
-    tput smcup >/dev/null 2>&1 || printf '\033[?1049h'
-  else
-    printf '\033[?1049h'
+  if ! terminal::has_tty; then
+    return 0
   fi
-  TERMINAL_ALTSCREEN_ACTIVE=1
+
+  if terminal::has_tput && terminal::tput smcup >/dev/null 2>&1; then
+    TERMINAL_ALTSCREEN_ACTIVE=1
+    return 0
+  fi
+
+  if terminal::emit_ansi '\033[?1049h' >/dev/null 2>&1; then
+    TERMINAL_ALTSCREEN_ACTIVE=1
+  fi
 }
 
 terminal::leave_alternate_screen() {
@@ -71,11 +85,15 @@ terminal::leave_alternate_screen() {
     return 0
   fi
 
-  if command -v tput >/dev/null 2>&1 && terminal::has_tty; then
-    tput rmcup >/dev/null 2>&1 || printf '\033[?1049l'
-  else
-    printf '\033[?1049l'
+  if terminal::has_tty && terminal::has_tput && terminal::tput rmcup >/dev/null 2>&1; then
+    TERMINAL_ALTSCREEN_ACTIVE=0
+    return 0
   fi
+
+  if terminal::has_tty; then
+    terminal::emit_ansi '\033[?1049l' >/dev/null 2>&1 || true
+  fi
+
   TERMINAL_ALTSCREEN_ACTIVE=0
 }
 

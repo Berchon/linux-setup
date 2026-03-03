@@ -38,6 +38,11 @@ assert_contains() {
 }
 
 reset_state() {
+  terminal::has_tty() { [ -t 0 ] && [ -t 1 ]; }
+  terminal::has_tput() { command -v tput >/dev/null 2>&1; }
+  terminal::tput() { tput "$@"; }
+  terminal::emit_ansi() { printf '%b' "$1"; }
+
   TERMINAL_CLEANED=0
   TERMINAL_SETUP_DONE=0
   TERMINAL_STTY_ORIG=""
@@ -74,12 +79,25 @@ test_setup_idempotent() {
 test_alt_screen_flag() {
   reset_state
   LINUX_SETUP_TERMINAL_DISABLE_ALTSCREEN=0
+  terminal::has_tty() { return 0; }
+  terminal::has_tput() { return 1; }
+  terminal::tput() { return 1; }
 
   terminal::enter_alternate_screen >/dev/null
   assert_eq "1" "$TERMINAL_ALTSCREEN_ACTIVE" "alternate screen flag enabled"
 
   terminal::leave_alternate_screen >/dev/null
   assert_eq "0" "$TERMINAL_ALTSCREEN_ACTIVE" "alternate screen flag disabled"
+}
+
+test_alt_screen_safe_fallback_without_tty() {
+  reset_state
+  LINUX_SETUP_TERMINAL_DISABLE_ALTSCREEN=0
+  terminal::has_tty() { return 1; }
+  terminal::has_tput() { return 0; }
+
+  terminal::enter_alternate_screen >/dev/null
+  assert_eq "0" "$TERMINAL_ALTSCREEN_ACTIVE" "alternate screen keeps safe fallback when tty is unavailable"
 }
 
 test_winch_runtime_flag_and_trap() {
@@ -98,6 +116,7 @@ main() {
   test_cleanup_idempotent
   test_setup_idempotent
   test_alt_screen_flag
+  test_alt_screen_safe_fallback_without_tty
   test_winch_runtime_flag_and_trap
 
   printf '\nTotal: %s pass, %s fail\n' "$pass_count" "$fail_count"
