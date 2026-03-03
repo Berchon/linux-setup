@@ -62,7 +62,33 @@ Objetivo: consolidar o runtime interativo e iniciar a engine de render increment
 
 Critério de saída do E1:
 - Runtime de terminal robusto + pipeline inicial de render incremental validado por testes.
+
 3. E2 Componentes base
+
+### E2 - Histórias e tasks
+Objetivo: entregar primitives visuais reutilizáveis e composáveis para os fluxos de UI.
+
+### H2.1 Rectangle
+- [ ] T2.1.1 Implementar preenchimento de área retangular em buffer com clipping.
+- [ ] T2.1.2 Implementar borda (`none|single|double`) com fallback ASCII.
+- [ ] T2.1.3 Implementar render de título opcional com clipping e alinhamento básico.
+- [ ] T2.1.4 Cobrir `rectangle` com testes de componente e fronteira.
+
+### H2.2 Shadow
+- [ ] T2.2.1 Implementar sombra com offset configurável (`dx`, `dy`).
+- [ ] T2.2.2 Implementar clipping e regras de sobreposição da sombra.
+- [ ] T2.2.3 Implementar política de habilitar/desabilitar sombra por componente.
+- [ ] T2.2.4 Cobrir `shadow` com testes de componente.
+
+### H2.3 Panel
+- [ ] T2.3.1 Implementar composição `Rectangle + Shadow` em um componente único.
+- [ ] T2.3.2 Implementar padding interno configurável e cálculo da área útil.
+- [ ] T2.3.3 Expor API de conteúdo interno via callback/contrato de render.
+- [ ] T2.3.4 Cobrir `panel` com testes de composição e clipping.
+
+Critério de saída do E2:
+- Componentes base (`rectangle`, `shadow`, `panel`) estáveis e validados por testes.
+
 4. E3 Navegação/menu
 5. E4 Modal e toast
 6. E5 Configuração + i18n
