@@ -45,7 +45,7 @@ Objetivo: consolidar o runtime interativo e iniciar a engine de render increment
 ### H1.2 Buffers de render
 - [x] T1.2.1 Implementar estrutura de célula (`char`, `fg`, `bg`, `attrs`) para front/back buffer.
 - [x] T1.2.2 Implementar inicialização, swap e reset de buffers.
-- [ ] T1.2.3 Implementar operações de escrita com clipping por viewport.
+- [x] T1.2.3 Implementar operações de escrita com clipping por viewport.
 - [ ] T1.2.4 Cobrir buffer API com testes unitários de fronteira.
 
 ### H1.3 Dirty regions
