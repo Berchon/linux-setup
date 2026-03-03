@@ -6,6 +6,7 @@ TERMINAL_CLEANED=0
 TERMINAL_SETUP_DONE=0
 TERMINAL_STTY_ORIG=""
 TERMINAL_ALTSCREEN_ACTIVE=0
+TERMINAL_RESIZE_PENDING=0
 TERMINAL_CAP_CURSOR_POSITIONING=0
 TERMINAL_CAP_CLEAR_SCREEN=0
 TERMINAL_CAP_CURSOR_VISIBILITY=0
@@ -115,8 +116,22 @@ terminal::cleanup() {
   terminal::leave_alternate_screen
 }
 
+terminal::handle_winch() {
+  TERMINAL_RESIZE_PENDING=1
+}
+
+terminal::consume_resize_event() {
+  if [ "$TERMINAL_RESIZE_PENDING" -eq 0 ]; then
+    return 1
+  fi
+
+  TERMINAL_RESIZE_PENDING=0
+  return 0
+}
+
 terminal::install_traps() {
   trap 'terminal::cleanup' EXIT INT TERM
+  trap 'terminal::handle_winch' WINCH
 }
 
 terminal::setup() {

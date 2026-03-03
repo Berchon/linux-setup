@@ -23,11 +23,26 @@ assert_eq() {
   fi
 }
 
+assert_contains() {
+  local content="$1"
+  local snippet="$2"
+  local label="$3"
+
+  if [[ "$content" == *"$snippet"* ]]; then
+    pass_count=$((pass_count + 1))
+    printf 'PASS: %s\n' "$label"
+  else
+    fail_count=$((fail_count + 1))
+    printf 'FAIL: %s (missing=%s content=%s)\n' "$label" "$snippet" "$content"
+  fi
+}
+
 reset_state() {
   TERMINAL_CLEANED=0
   TERMINAL_SETUP_DONE=0
   TERMINAL_STTY_ORIG=""
   TERMINAL_ALTSCREEN_ACTIVE=0
+  TERMINAL_RESIZE_PENDING=0
 }
 
 test_cleanup_idempotent() {
@@ -67,10 +82,23 @@ test_alt_screen_flag() {
   assert_eq "0" "$TERMINAL_ALTSCREEN_ACTIVE" "alternate screen flag disabled"
 }
 
+test_winch_runtime_flag_and_trap() {
+  reset_state
+  terminal::handle_winch
+  assert_eq "1" "$TERMINAL_RESIZE_PENDING" "WINCH handler marks resize as pending"
+
+  terminal::consume_resize_event
+  assert_eq "0" "$TERMINAL_RESIZE_PENDING" "resize pending flag is cleared after consume"
+
+  terminal::install_traps
+  assert_contains "$(trap -p WINCH)" "terminal::handle_winch" "WINCH trap is installed"
+}
+
 main() {
   test_cleanup_idempotent
   test_setup_idempotent
   test_alt_screen_flag
+  test_winch_runtime_flag_and_trap
 
   printf '\nTotal: %s pass, %s fail\n' "$pass_count" "$fail_count"
   [ "$fail_count" -eq 0 ]

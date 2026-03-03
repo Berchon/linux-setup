@@ -10,6 +10,10 @@ app::loop() {
   local key=""
 
   while true; do
+    if terminal::consume_resize_event; then
+      app::on_resize
+    fi
+
     if read -r -s -n 1 -t 0.1 key; then
       case "$key" in
         q|Q)
@@ -18,6 +22,10 @@ app::loop() {
       esac
     fi
   done
+}
+
+app::on_resize() {
+  :
 }
 
 app::main() {
