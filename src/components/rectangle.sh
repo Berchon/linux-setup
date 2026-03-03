@@ -338,8 +338,70 @@ rectangle_render_border() {
   done
 }
 
+rectangle_title_compute_start_x() {
+  local x="$1"
+  local border_style="$2"
+
+  if [[ "${border_style}" == 'none' ]]; then
+    printf '%s\n' "${x}"
+    return 0
+  fi
+
+  printf '%s\n' "$((x + 1))"
+}
+
+rectangle_title_compute_max_width() {
+  local width="$1"
+  local border_style="$2"
+
+  if [[ "${border_style}" == 'none' ]]; then
+    printf '%s\n' "${width}"
+    return 0
+  fi
+
+  if ((width <= 2)); then
+    printf '0\n'
+    return 0
+  fi
+
+  printf '%s\n' "$((width - 2))"
+}
+
 rectangle_render_title() {
-  return 0
+  local buffer_name="$1"
+  local x="$2"
+  local y="$3"
+  local width="$4"
+  local height="$5"
+  local border_style="$6"
+  local title="$7"
+  local fg="$8"
+  local bg="$9"
+  local bold="${10}"
+  local title_start_x=0
+  local title_max_width=0
+  local clipped_title=''
+
+  if [[ -z "${title}" ]]; then
+    return 0
+  fi
+
+  if ! declare -F cell_buffer_write_text >/dev/null; then
+    return 1
+  fi
+
+  if ((width == 0 || height == 0)); then
+    return 0
+  fi
+
+  title_start_x="$(rectangle_title_compute_start_x "${x}" "${border_style}")" || return 1
+  title_max_width="$(rectangle_title_compute_max_width "${width}" "${border_style}")" || return 1
+  if ((title_max_width <= 0)); then
+    return 0
+  fi
+
+  clipped_title="${title:0:title_max_width}"
+  cell_buffer_write_text "${buffer_name}" "${title_start_x}" "${y}" "${clipped_title}" "${fg}" "${bg}" "${bold}"
 }
 
 # x,y,width,height always represent the full rectangle area drawn on screen.

@@ -45,4 +45,5 @@ Exemplos:
 - Emissão ANSI incremental com payload mínimo, seguida de swap de buffers e limpeza de dirty regions. (E1/H1.4/T1.4.3) [PR MAIN] [commit 080183a]
 - Testes de integração/perf para validar render incremental sem redraw full indevido. (E1/H1.4/T1.4.4) [PR MAIN] [commit 0550852]
 - Implementa componente base `rectangle` com preenchimento de área e clipping no `cell_buffer`. (E2/H2.1/T2.1.1) [PR #PENDING] [commit 830a3dd]
-- Implementa render de borda do `rectangle` com estilos `none|single|double` e fallback ASCII/Unicode por locale. (E2/H2.1/T2.1.2) [PR #PENDING] [commit TBD]
+- Implementa render de borda do `rectangle` com estilos `none|single|double` e fallback ASCII/Unicode por locale. (E2/H2.1/T2.1.2) [PR #PENDING] [commit ba6def3]
+- Implementa render de título opcional no `rectangle` com clipping e alinhamento básico em relação à borda. (E2/H2.1/T2.1.3) [PR #PENDING] [commit TBD]
