@@ -67,6 +67,12 @@ rectangle_render back -1 0 4 3 "." 1 2 0 single
 assert_eq '-|1|2|0' "$(cell_buffer_get_cell back 0 0)" 'border should clip top edge when x is negative'
 assert_eq '+|1|2|0' "$(cell_buffer_get_cell back 2 0)" 'border should render visible top-right corner'
 
+cell_buffer_reset_buffer back
+rectangle_render back 1 1 10 5 "." 2 3 0 single "M" 2 1 1 0
+assert_eq '.|2|3|0' "$(cell_buffer_get_cell back 1 1)" 'outer area should remain filled when margin is used'
+assert_eq '+|2|3|0' "$(cell_buffer_get_cell back 3 2)" 'border should be inset by external margins'
+assert_eq 'M|2|3|0' "$(cell_buffer_get_cell back 4 2)" 'title should follow inset border origin'
+
 cell_buffer_write_cell back 0 5 'Z' 9 9 9
 rectangle_render back 2 2 0 3 "." 1 1 0 none "IGNORED"
 assert_eq 'Z|9|9|9' "$(cell_buffer_get_cell back 0 5)" 'zero-width rectangle should not mutate buffer'

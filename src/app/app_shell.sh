@@ -50,19 +50,57 @@ app_shell::init_render_context() {
 }
 
 app_shell::compute_demo_rectangle() {
-  local x=2
-  local y=1
-  local width=$((app_shell_screen_width - 4))
-  local height=$((app_shell_screen_height - 2))
+  local margin_left=2
+  local margin_top=1
+  local margin_right=4
+  local margin_bottom=0
+  local x=10
+  local y=10
+  local width=40
+  local height=8
+  local max_width=0
+  local max_height=0
+  local max_x=0
+  local max_y=0
 
-  if ((width <= 0)); then
-    x=0
-    width="$app_shell_screen_width"
+  max_width=$((app_shell_screen_width - margin_left - margin_right))
+  if ((max_width < 1)); then
+    max_width=1
+  fi
+  if ((width > max_width)); then
+    width="$max_width"
   fi
 
-  if ((height <= 0)); then
-    y=0
-    height="$app_shell_screen_height"
+  max_height=$((app_shell_screen_height - margin_top - margin_bottom))
+  if ((max_height < 1)); then
+    max_height=1
+  fi
+  if ((height > max_height)); then
+    height="$max_height"
+  fi
+
+  if ((x < margin_left)); then
+    x="$margin_left"
+  fi
+
+  if ((y < margin_top)); then
+    y="$margin_top"
+  fi
+
+  max_x=$((app_shell_screen_width - margin_right - width))
+  if ((max_x < margin_left)); then
+    max_x="$margin_left"
+  fi
+  if ((x > max_x)); then
+    x="$max_x"
+  fi
+
+  max_y=$((app_shell_screen_height - margin_bottom - height))
+  if ((max_y < margin_top)); then
+    max_y="$margin_top"
+  fi
+  if ((y > max_y)); then
+    y="$max_y"
   fi
 
   printf '%s|%s|%s|%s\n' "$x" "$y" "$width" "$height"
@@ -81,7 +119,7 @@ app_shell::render_demo_rectangle() {
   rect="$(app_shell::compute_demo_rectangle)" || return 1
   IFS='|' read -r x y width height <<< "$rect"
 
-  rectangle_render back "$x" "$y" "$width" "$height" " " 7 4 0 single "linux-setup rectangle" || return 1
+  rectangle_render back "$x" "$y" "$width" "$height" " " 7 4 0 single "linux-setup rectangle" 2 1 4 0 || return 1
   dirty_regions_add 0 0 "$app_shell_screen_width" "$app_shell_screen_height" || return 1
   diff_renderer_render_dirty
 }

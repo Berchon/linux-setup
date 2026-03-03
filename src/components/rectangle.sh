@@ -59,9 +59,18 @@ rectangle_validate_render_args() {
   local width="$3"
   local height="$4"
   local border_style="$5"
+  local margin_left="${6:-0}"
+  local margin_top="${7:-0}"
+  local margin_right="${8:-0}"
+  local margin_bottom="${9:-0}"
 
   rectangle_validate_clip_args "${x}" "${y}" "${width}" "${height}" || return 1
-  rectangle_border_style_is_valid "${border_style}"
+  rectangle_border_style_is_valid "${border_style}" || return 1
+
+  rectangle_is_non_negative_integer "${margin_left}" || return 1
+  rectangle_is_non_negative_integer "${margin_top}" || return 1
+  rectangle_is_non_negative_integer "${margin_right}" || return 1
+  rectangle_is_non_negative_integer "${margin_bottom}" || return 1
 }
 
 rectangle_buffer_dimensions_are_ready() {
@@ -122,30 +131,33 @@ rectangle_clip_rect() {
 }
 
 rectangle_compute_inner_rect() {
-  local x="$1"
-  local y="$2"
-  local width="$3"
-  local height="$4"
+  local border_x="$1"
+  local border_y="$2"
+  local border_width="$3"
+  local border_height="$4"
   local border_style="$5"
   local inner_x="$x"
   local inner_y="$y"
-  local inner_width="$width"
-  local inner_height="$height"
+  local inner_width="$border_width"
+  local inner_height="$border_height"
+
+  inner_x="${border_x}"
+  inner_y="${border_y}"
 
   if [[ "${border_style}" == 'none' ]]; then
     printf '%s|%s|%s|%s\n' "${inner_x}" "${inner_y}" "${inner_width}" "${inner_height}"
     return 0
   fi
 
-  inner_x=$((x + 1))
-  inner_y=$((y + 1))
-  if ((width > 2)); then
-    inner_width=$((width - 2))
+  inner_x=$((border_x + 1))
+  inner_y=$((border_y + 1))
+  if ((border_width > 2)); then
+    inner_width=$((border_width - 2))
   else
     inner_width=0
   fi
-  if ((height > 2)); then
-    inner_height=$((height - 2))
+  if ((border_height > 2)); then
+    inner_height=$((border_height - 2))
   else
     inner_height=0
   fi
@@ -159,17 +171,36 @@ rectangle_compute_geometry() {
   local width="$3"
   local height="$4"
   local border_style="$5"
+  local margin_left="${6:-0}"
+  local margin_top="${7:-0}"
+  local margin_right="${8:-0}"
+  local margin_bottom="${9:-0}"
+  local border_x=0
+  local border_y=0
+  local border_width=0
+  local border_height=0
   local inner_rect=''
   local inner_x=0
   local inner_y=0
   local inner_width=0
   local inner_height=0
 
-  inner_rect="$(rectangle_compute_inner_rect "${x}" "${y}" "${width}" "${height}" "${border_style}")" || return 1
+  border_x=$((x + margin_left))
+  border_y=$((y + margin_top))
+  border_width=$((width - margin_left - margin_right))
+  border_height=$((height - margin_top - margin_bottom))
+  if ((border_width < 0)); then
+    border_width=0
+  fi
+  if ((border_height < 0)); then
+    border_height=0
+  fi
+
+  inner_rect="$(rectangle_compute_inner_rect "${border_x}" "${border_y}" "${border_width}" "${border_height}" "${border_style}")" || return 1
   IFS='|' read -r inner_x inner_y inner_width inner_height <<< "${inner_rect}"
 
-  printf '%s|%s|%s|%s|%s|%s|%s|%s\n' \
-    "${x}" "${y}" "${width}" "${height}" \
+  printf '%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n' \
+    "${x}" "${y}" "${width}" "${height}" "${border_x}" "${border_y}" "${border_width}" "${border_height}" \
     "${inner_x}" "${inner_y}" "${inner_width}" "${inner_height}"
 }
 
@@ -542,22 +573,30 @@ rectangle_render() {
   local bold="$9"
   local border_style="${10:-none}"
   local title="${11:-}"
+  local margin_left="${12:-0}"
+  local margin_top="${13:-0}"
+  local margin_right="${14:-0}"
+  local margin_bottom="${15:-0}"
   local geometry=''
   local outer_x=0
   local outer_y=0
   local outer_width=0
   local outer_height=0
+  local border_x=0
+  local border_y=0
+  local border_width=0
+  local border_height=0
 
-  rectangle_validate_render_args "${x}" "${y}" "${width}" "${height}" "${border_style}" || return 1
+  rectangle_validate_render_args "${x}" "${y}" "${width}" "${height}" "${border_style}" "${margin_left}" "${margin_top}" "${margin_right}" "${margin_bottom}" || return 1
 
-  geometry="$(rectangle_compute_geometry "${x}" "${y}" "${width}" "${height}" "${border_style}")" || return 1
-  IFS='|' read -r outer_x outer_y outer_width outer_height _ _ _ _ <<< "${geometry}"
+  geometry="$(rectangle_compute_geometry "${x}" "${y}" "${width}" "${height}" "${border_style}" "${margin_left}" "${margin_top}" "${margin_right}" "${margin_bottom}")" || return 1
+  IFS='|' read -r outer_x outer_y outer_width outer_height border_x border_y border_width border_height _ _ _ _ <<< "${geometry}"
 
   if ((outer_width == 0 || outer_height == 0)); then
     return 0
   fi
 
   rectangle_render_fill "${buffer_name}" "${outer_x}" "${outer_y}" "${outer_width}" "${outer_height}" "${fill_char}" "${fg}" "${bg}" "${bold}" || return 1
-  rectangle_render_border "${buffer_name}" "${x}" "${y}" "${width}" "${height}" "${border_style}" "${fg}" "${bg}" "${bold}" || return 1
-  rectangle_render_title "${buffer_name}" "${x}" "${y}" "${width}" "${height}" "${border_style}" "${title}" "${fg}" "${bg}" "${bold}"
+  rectangle_render_border "${buffer_name}" "${border_x}" "${border_y}" "${border_width}" "${border_height}" "${border_style}" "${fg}" "${bg}" "${bold}" || return 1
+  rectangle_render_title "${buffer_name}" "${border_x}" "${border_y}" "${border_width}" "${border_height}" "${border_style}" "${title}" "${fg}" "${bg}" "${bold}"
 }

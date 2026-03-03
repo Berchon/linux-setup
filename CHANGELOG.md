@@ -49,4 +49,5 @@ Exemplos:
 - Implementa render de título opcional no `rectangle` com clipping e alinhamento básico em relação à borda. (E2/H2.1/T2.1.3) [PR #2] [commit deb0e37]
 - Adiciona testes de componente/fronteira para `rectangle` cobrindo fill, borda, título, clipping e validação de argumentos. (E2/H2.1/T2.1.4) [PR #2] [commit 9fb945e]
 - Refatora internamente `rectangle` com step-down/composed method e adiciona render de retângulo de demonstração na inicialização do app. (E2/H2.1) [PR #2] [commit ed6559f]
-- Move orquestração visual para `app_shell`, mantendo `main.sh` enxuta, e reforça `cleanup` para restaurar estado visual do terminal ao sair do app. [PR #2] [commit TBD]
+- Move orquestração visual para `app_shell`, mantendo `main.sh` enxuta, e reforça `cleanup` para restaurar estado visual do terminal ao sair do app. [PR #2] [commit b4d510c]
+- Adiciona suporte a margens externas opcionais no `rectangle` e aplica `left=2, top=1, right=4, bottom=0` no retângulo de demo. (E2/H2.1) [PR #2] [commit TBD]
