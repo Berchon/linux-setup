@@ -72,7 +72,7 @@ Objetivo: entregar primitives visuais reutilizáveis e composáveis para os flux
 - [x] T2.1.1 Implementar preenchimento de área retangular em buffer com clipping.
 - [x] T2.1.2 Implementar borda (`none|single|double`) com fallback ASCII.
 - [x] T2.1.3 Implementar render de título opcional com clipping e alinhamento básico.
-- [ ] T2.1.4 Cobrir `rectangle` com testes de componente e fronteira.
+- [x] T2.1.4 Cobrir `rectangle` com testes de componente e fronteira.
 
 ### H2.2 Shadow
 - [ ] T2.2.1 Implementar sombra com offset configurável (`dx`, `dy`).
