@@ -123,15 +123,28 @@ terminal::restore_stty() {
   fi
 }
 
+terminal::clear_primary_screen() {
+  if terminal::has_tty; then
+    terminal::emit_ansi '\033[2J\033[H\033[3J' >/dev/null 2>&1 || true
+  fi
+}
+
 terminal::cleanup() {
+  local was_using_altscreen=0
+
   if [ "$TERMINAL_CLEANED" -eq 1 ]; then
     return 0
   fi
 
+  was_using_altscreen="$TERMINAL_ALTSCREEN_ACTIVE"
   TERMINAL_CLEANED=1
   terminal::restore_stty
-  terminal::show_cursor
+  terminal::emit_ansi '\033[0m' >/dev/null 2>&1 || true
   terminal::leave_alternate_screen
+  if [ "$was_using_altscreen" -ne 1 ]; then
+    terminal::clear_primary_screen
+  fi
+  terminal::show_cursor
 }
 
 terminal::handle_winch() {
