@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 
 rectangle_border_charset='auto'
+rectangle_border_tl='+'
+rectangle_border_tr='+'
+rectangle_border_bl='+'
+rectangle_border_br='+'
+rectangle_border_h='-'
+rectangle_border_v='|'
 
 rectangle_is_integer() {
   [[ "$1" =~ ^-?[0-9]+$ ]]
@@ -169,8 +175,167 @@ rectangle_render_fill() {
   done
 }
 
+rectangle_set_border_charset() {
+  local charset="$1"
+
+  case "${charset}" in
+    auto|ascii|unicode)
+      rectangle_border_charset="${charset}"
+      return 0
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+rectangle_runtime_charset_is_utf8() {
+  local locale_value=''
+
+  locale_value="${LC_ALL:-${LC_CTYPE:-${LANG:-}}}"
+  locale_value="${locale_value,,}"
+
+  [[ "${locale_value}" == *"utf-8"* || "${locale_value}" == *"utf8"* ]]
+}
+
+rectangle_resolve_border_charset() {
+  if [[ "${rectangle_border_charset}" == 'ascii' ]]; then
+    printf 'ascii\n'
+    return 0
+  fi
+
+  if [[ "${rectangle_border_charset}" == 'unicode' ]]; then
+    printf 'unicode\n'
+    return 0
+  fi
+
+  if rectangle_runtime_charset_is_utf8; then
+    printf 'unicode\n'
+    return 0
+  fi
+
+  printf 'ascii\n'
+}
+
+rectangle_border_chars() {
+  local border_style="$1"
+  local charset=''
+
+  if [[ "${rectangle_border_charset}" != 'auto' && "${rectangle_border_charset}" != 'ascii' && "${rectangle_border_charset}" != 'unicode' ]]; then
+    return 1
+  fi
+
+  charset="$(rectangle_resolve_border_charset)" || return 1
+
+  case "${border_style}" in
+    single)
+      if [[ "${charset}" == 'unicode' ]]; then
+        rectangle_border_tl='┌'
+        rectangle_border_tr='┐'
+        rectangle_border_bl='└'
+        rectangle_border_br='┘'
+        rectangle_border_h='─'
+        rectangle_border_v='│'
+      else
+        rectangle_border_tl='+'
+        rectangle_border_tr='+'
+        rectangle_border_bl='+'
+        rectangle_border_br='+'
+        rectangle_border_h='-'
+        rectangle_border_v='|'
+      fi
+      return 0
+      ;;
+    double)
+      if [[ "${charset}" == 'unicode' ]]; then
+        rectangle_border_tl='╔'
+        rectangle_border_tr='╗'
+        rectangle_border_bl='╚'
+        rectangle_border_br='╝'
+        rectangle_border_h='═'
+        rectangle_border_v='║'
+      else
+        rectangle_border_tl='+'
+        rectangle_border_tr='+'
+        rectangle_border_bl='+'
+        rectangle_border_br='+'
+        rectangle_border_h='='
+        rectangle_border_v='|'
+      fi
+      return 0
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+rectangle_write_visible_cell() {
+  local buffer_name="$1"
+  local x="$2"
+  local y="$3"
+  local cell_char="$4"
+  local fg="$5"
+  local bg="$6"
+  local bold="$7"
+
+  if ((x < 0 || y < 0 || x >= cell_buffer_width || y >= cell_buffer_height)); then
+    return 0
+  fi
+
+  cell_buffer_write_cell "${buffer_name}" "${x}" "${y}" "${cell_char}" "${fg}" "${bg}" "${bold}"
+}
+
 rectangle_render_border() {
-  return 0
+  local buffer_name="$1"
+  local x="$2"
+  local y="$3"
+  local width="$4"
+  local height="$5"
+  local border_style="$6"
+  local fg="$7"
+  local bg="$8"
+  local bold="$9"
+  local right=0
+  local bottom=0
+  local current_x=0
+  local current_y=0
+
+  if [[ "${border_style}" == 'none' ]] || ((width == 0 || height == 0)); then
+    return 0
+  fi
+
+  rectangle_border_chars "${border_style}" || return 1
+
+  right=$((x + width - 1))
+  bottom=$((y + height - 1))
+
+  rectangle_write_visible_cell "${buffer_name}" "${x}" "${y}" "${rectangle_border_tl}" "${fg}" "${bg}" "${bold}"
+
+  if ((width > 1)); then
+    rectangle_write_visible_cell "${buffer_name}" "${right}" "${y}" "${rectangle_border_tr}" "${fg}" "${bg}" "${bold}"
+  fi
+
+  if ((height > 1)); then
+    rectangle_write_visible_cell "${buffer_name}" "${x}" "${bottom}" "${rectangle_border_bl}" "${fg}" "${bg}" "${bold}"
+    if ((width > 1)); then
+      rectangle_write_visible_cell "${buffer_name}" "${right}" "${bottom}" "${rectangle_border_br}" "${fg}" "${bg}" "${bold}"
+    fi
+  fi
+
+  for ((current_x = x + 1; current_x < right; current_x++)); do
+    rectangle_write_visible_cell "${buffer_name}" "${current_x}" "${y}" "${rectangle_border_h}" "${fg}" "${bg}" "${bold}"
+    if ((height > 1)); then
+      rectangle_write_visible_cell "${buffer_name}" "${current_x}" "${bottom}" "${rectangle_border_h}" "${fg}" "${bg}" "${bold}"
+    fi
+  done
+
+  for ((current_y = y + 1; current_y < bottom; current_y++)); do
+    rectangle_write_visible_cell "${buffer_name}" "${x}" "${current_y}" "${rectangle_border_v}" "${fg}" "${bg}" "${bold}"
+    if ((width > 1)); then
+      rectangle_write_visible_cell "${buffer_name}" "${right}" "${current_y}" "${rectangle_border_v}" "${fg}" "${bg}" "${bold}"
+    fi
+  done
 }
 
 rectangle_render_title() {
@@ -198,8 +363,8 @@ rectangle_render() {
 
   rectangle_validate_render_args "${x}" "${y}" "${width}" "${height}" "${border_style}" || return 1
   geometry="$(rectangle_compute_geometry "${x}" "${y}" "${width}" "${height}" "${border_style}")" || return 1
+  IFS='|' read -r outer_x outer_y outer_width outer_height _ _ _ _ <<< "${geometry}"
 
-  IFS='|' read -r outer_x outer_y outer_width outer_height _ <<< "${geometry}"
   if ((outer_width == 0 || outer_height == 0)); then
     return 0
   fi
