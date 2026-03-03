@@ -41,4 +41,5 @@ Exemplos:
 - Política de invalidação para eventos simples (`menu delta`, `clock`, `modal`, `resize`). (E1/H1.3/T1.3.3) [PR MAIN] [commit b0ab8d2]
 - Cobertura unitária de fronteiras para dirty regions (clipping extremo, remoção, índices inválidos e casos sem interseção). (E1/H1.3/T1.3.4) [PR MAIN] [commit 2eb3ed5]
 - Comparação de front/back limitada às dirty regions no diff renderer incremental. (E1/H1.4/T1.4.1) [PR MAIN] [commit f87acdc]
-- Agrupamento de runs contíguos por estilo no diff renderer para reduzir escrita ANSI. (E1/H1.4/T1.4.2) [PR MAIN] [commit this-commit]
+- Agrupamento de runs contíguos por estilo no diff renderer para reduzir escrita ANSI. (E1/H1.4/T1.4.2) [PR MAIN] [commit e71157d]
+- Emissão ANSI incremental com payload mínimo, seguida de swap de buffers e limpeza de dirty regions. (E1/H1.4/T1.4.3) [PR MAIN] [commit this-commit]

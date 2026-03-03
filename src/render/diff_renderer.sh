@@ -225,3 +225,109 @@ diff_renderer_collect_runs() {
     done
   done
 }
+
+diff_renderer_emit_ansi() {
+  local sequence="$1"
+
+  if declare -F runtime_emit_ansi >/dev/null 2>&1; then
+    runtime_emit_ansi "$sequence"
+    return 0
+  fi
+
+  printf '%b' "$sequence"
+}
+
+diff_renderer_cursor_sequence() {
+  local x="$1"
+  local y="$2"
+
+  printf '\033[%s;%sH' "$((y + 1))" "$((x + 1))"
+}
+
+diff_renderer_style_sequence() {
+  local fg="$1"
+  local bg="$2"
+  local attrs="$3"
+  local fg_code=30
+  local bg_code=40
+
+  if [[ ! "$fg" =~ ^-?[0-9]+$ ]]; then
+    fg=7
+  fi
+  if [[ ! "$bg" =~ ^-?[0-9]+$ ]]; then
+    bg=0
+  fi
+
+  if ((fg < 0)); then fg=0; fi
+  if ((bg < 0)); then bg=0; fi
+  fg=$((fg % 16))
+  bg=$((bg % 16))
+
+  if ((fg < 8)); then
+    fg_code=$((30 + fg))
+  else
+    fg_code=$((90 + fg - 8))
+  fi
+
+  if ((bg < 8)); then
+    bg_code=$((40 + bg))
+  else
+    bg_code=$((100 + bg - 8))
+  fi
+
+  if [[ "$attrs" == "1" ]]; then
+    printf '\033[1;%s;%sm' "$fg_code" "$bg_code"
+    return 0
+  fi
+
+  printf '\033[22;%s;%sm' "$fg_code" "$bg_code"
+}
+
+diff_renderer_render_dirty() {
+  local run_count=0
+  local run_index=0
+  local run_x=0
+  local run_y=0
+  local run_text=""
+  local run_fg=0
+  local run_bg=0
+  local run_attrs=0
+  local current_fg=""
+  local current_bg=""
+  local current_attrs=""
+  local ansi_buffer=""
+
+  if ! declare -F cell_buffer_swap >/dev/null 2>&1 || ! declare -F dirty_regions_reset >/dev/null 2>&1; then
+    return 1
+  fi
+
+  diff_renderer_collect_runs || return 1
+  run_count="${#diff_renderer_run_xs[@]}"
+
+  for ((run_index = 0; run_index < run_count; run_index++)); do
+    run_x="${diff_renderer_run_xs[run_index]}"
+    run_y="${diff_renderer_run_ys[run_index]}"
+    run_text="${diff_renderer_run_texts[run_index]}"
+    run_fg="${diff_renderer_run_fgs[run_index]}"
+    run_bg="${diff_renderer_run_bgs[run_index]}"
+    run_attrs="${diff_renderer_run_attrs[run_index]}"
+
+    ansi_buffer+="$(diff_renderer_cursor_sequence "$run_x" "$run_y")"
+
+    if [[ "$run_fg" != "$current_fg" || "$run_bg" != "$current_bg" || "$run_attrs" != "$current_attrs" ]]; then
+      ansi_buffer+="$(diff_renderer_style_sequence "$run_fg" "$run_bg" "$run_attrs")"
+      current_fg="$run_fg"
+      current_bg="$run_bg"
+      current_attrs="$run_attrs"
+    fi
+
+    ansi_buffer+="$run_text"
+  done
+
+  if [[ -n "$ansi_buffer" ]]; then
+    diff_renderer_emit_ansi "$ansi_buffer"
+  fi
+
+  cell_buffer_swap
+  dirty_regions_reset
+}
